@@ -84,6 +84,13 @@ app.post('/api/:resource', auth, async (req,res) => {
   res.status(201).json((await pool.query(...map[r])).rows[0]);
 });
 
+app.put('/api/transactions/:id', auth, async (req,res) => {
+  const b=req.body;
+  const {rows}=await pool.query(`UPDATE transactions SET title=$1,amount=$2,category_id=$3,management_month=$4::date,actual_used_on=$5::date,occurred_on=$5::date,memo=$6 WHERE id=$7 RETURNING *`,[b.title,b.amount,b.categoryId,b.managementMonth+'-01',b.actualDate,b.memo||null,req.params.id]);
+  if(!rows[0]) return res.status(404).json({error:'지출 내역을 찾을 수 없습니다.'});
+  res.json(rows[0]);
+});
+
 app.post('/api/gemini/test', auth, async (req,res) => {
   const apiKey=String(req.body.apiKey||process.env.GEMINI_API_KEY||'');
   const model=String(req.body.model||'gemini-2.5-flash');
