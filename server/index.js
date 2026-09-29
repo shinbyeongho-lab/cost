@@ -77,7 +77,7 @@ app.post('/api/:resource', auth, async (req,res) => {
   const map={
     budgets: ['INSERT INTO budgets(month,category_id,amount,created_by) VALUES($1,$2,$3,$4) ON CONFLICT(month,category_id) DO UPDATE SET amount=EXCLUDED.amount RETURNING *',[b.month+'-01',b.categoryId,b.amount,uid]],
     transactions: ['INSERT INTO transactions(type,category_id,amount,title,occurred_on,management_month,actual_used_on,memo,created_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *',[b.type,b.categoryId||null,b.amount,b.title,b.actualDate,b.managementMonth+'-01',b.actualDate,b.memo||null,uid]],
-    loans: ['INSERT INTO loans(name,lender,principal,interest_rate,started_on,due_on,created_by) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING *',[b.name,b.lender,b.principal,b.rate,b.startDate,b.dueDate||null,uid]],
+    loans: ['INSERT INTO loans(name,lender,principal,started_on,due_on,created_by) VALUES($1,$2,$3,$4,$5,$6) RETURNING *',[b.name,b.lender,b.principal,b.startDate,b.dueDate||null,uid]],
     repayments: ['INSERT INTO loan_repayments(loan_id,amount,principal_amount,interest_amount,paid_on,memo,created_by) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING *',[b.loanId,b.amount,b.principalAmount,b.interestAmount,b.date,b.memo||null,uid]]
   };
   if(!map[r]) return res.status(404).json({error:'지원하지 않는 항목입니다.'});
@@ -89,6 +89,12 @@ app.put('/api/transactions/:id', auth, async (req,res) => {
   const {rows}=await pool.query(`UPDATE transactions SET title=$1,amount=$2,category_id=$3,management_month=$4::date,actual_used_on=$5::date,occurred_on=$5::date,memo=$6 WHERE id=$7 RETURNING *`,[b.title,b.amount,b.categoryId,b.managementMonth+'-01',b.actualDate,b.memo||null,req.params.id]);
   if(!rows[0]) return res.status(404).json({error:'지출 내역을 찾을 수 없습니다.'});
   res.json(rows[0]);
+});
+
+app.delete('/api/transactions/:id', auth, async (req,res) => {
+  const {rowCount}=await pool.query(`DELETE FROM transactions WHERE id=$1 AND type='expense'`,[req.params.id]);
+  if(!rowCount) return res.status(404).json({error:'지출 내역을 찾을 수 없습니다.'});
+  res.json({ok:true});
 });
 
 app.post('/api/gemini/test', auth, async (req,res) => {

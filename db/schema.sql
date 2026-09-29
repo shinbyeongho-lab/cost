@@ -50,12 +50,13 @@ CREATE TABLE IF NOT EXISTS loans (
   name TEXT NOT NULL,
   lender TEXT NOT NULL,
   principal NUMERIC(14,2) NOT NULL CHECK (principal > 0),
-  interest_rate NUMERIC(6,3) NOT NULL CHECK (interest_rate >= 0),
   started_on DATE NOT NULL,
   due_on DATE,
   created_by UUID REFERENCES app_users(id),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+ALTER TABLE loans DROP COLUMN IF EXISTS interest_rate;
 
 CREATE TABLE IF NOT EXISTS loan_repayments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
