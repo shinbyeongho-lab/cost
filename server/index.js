@@ -20,6 +20,7 @@ app.use(helmet({ contentSecurityPolicy: false }));
 app.use(express.json());
 app.use(cookieParser());
 if (!process.env.VERCEL) app.use(express.static(path.join(root, 'dist')));
+app.get('/', (_req, res) => res.sendFile(path.join(root, process.env.VERCEL ? 'public' : 'dist', 'index.html')));
 
 let readyPromise;
 export function ensureReady() {
