@@ -23,3 +23,9 @@
 
 이 폴더 전체를 새 저장소에 올리면 됩니다. `.env`는 `.gitignore`에 포함되어 API 키와 비밀번호가 커밋되지 않습니다.
 
+## Vercel 배포
+
+저장소 전체를 Vercel 프로젝트로 연결하면 `vercel.json`이 `dist` 폴더를 자동으로 배포합니다. Vercel의 Framework Preset은 `Other`를 사용하고 Root Directory는 비워 둡니다. 배포 후 화면, 데모 로그인, 기기 저장 기능이 동작합니다.
+
+PostgreSQL과 Gemini API는 정적 배포만으로 실행되지 않습니다. 운영 서버 기능을 사용하려면 별도 Node.js 백엔드를 배포하고 `DATABASE_URL`, `APP_PASSWORD`, `SESSION_SECRET`, `GEMINI_API_KEY` 환경변수를 설정해야 합니다.
+

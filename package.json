@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build": "node scripts/verify-static.mjs",
     "start": "node server/index.js",
     "dev": "node --watch server/index.js",
     "check": "node --check server/index.js && node --check dist/assets/app.js"
