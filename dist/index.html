@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="병호와 영원의 예산·지출·대출 상환 관리" />
+  <title>Bloom Budget · 우리집 자산관리</title>
+  <link rel="icon" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/styles.css" />
+  <link rel="stylesheet" href="/assets/budget-editor.css" />
+</head>
+<body>
+  <section id="login" class="login-shell">
+    <div class="login-glow"></div>
+    <div class="login-card">
+      <div class="brand-mark"><span>✦</span></div>
+      <p class="eyebrow">BLOOM BUDGET</p>
+      <h1>우리의 돈이<br><em>더 선명하게.</em></h1>
+      <p class="login-copy">병호와 영원이 함께 채우는 생활 재무 대시보드</p>
+      <form id="login-form">
+        <label>누가 기록하나요?</label>
+        <div class="people-picker">
+          <button type="button" class="person active" data-user="병호"><span>병</span>병호</button>
+          <button type="button" class="person" data-user="영원"><span>영</span>영원</button>
+        </div>
+        <label for="password">공용 비밀번호</label>
+        <div class="password-wrap"><input id="password" type="password" inputmode="numeric" autocomplete="current-password" placeholder="비밀번호 6자리" required /><button type="button" id="show-pass" aria-label="비밀번호 보기">◉</button></div>
+        <button class="primary login-button" type="submit">우리집 금고 열기</button>
+        <p id="login-error" class="form-error" role="alert"></p>
+      </form>
+      <div class="secure-note">● 가족 전용 보안 공간</div>
+    </div>
+  </section>
+
+  <div id="app" class="app hidden">
+    <aside class="sidebar">
+      <div class="side-brand"><div class="brand-mark small">✦</div><div><b>Bloom</b><span>우리집 자산관리</span></div></div>
+      <nav>
+        <button class="nav-item active" data-view="dashboard"><span>◫</span>대시보드</button>
+        <button class="nav-item" data-action="budget" onclick="openBudgetModal('budget')"><span>◎</span>예산 관리</button>
+        <button class="nav-item" data-action="income" onclick="openBudgetModal('income')"><span>↙</span>수입 등록</button>
+        <button class="nav-item" data-action="expense" onclick="openBudgetModal('expense')"><span>↗</span>지출 등록</button>
+        <div class="nav-label">DEBT</div>
+        <button class="nav-item" data-action="loan" onclick="openBudgetModal('loan')"><span>◇</span>대출 관리</button>
+        <button class="nav-item" data-action="repayment" onclick="openBudgetModal('repayment')"><span>✓</span>상환 등록</button>
+      </nav>
+      <div class="side-bottom">
+        <button class="nav-item" data-action="gemini" onclick="openBudgetModal('gemini')"><span>✦</span>Gemini 설정</button>
+        <div class="profile"><div class="avatar">병</div><div><b id="profile-name">병호</b><span>함께 관리 중</span></div><button id="logout" title="로그아웃">↪</button></div>
+      </div>
+    </aside>
+
+    <main>
+      <header>
+        <button id="menu" class="icon-button">☰</button>
+        <div><p class="eyebrow">HOUSEHOLD OVERVIEW</p><h2><span id="greeting">좋은 아침이에요</span>, <em id="header-name">병호</em>님</h2></div>
+        <div class="header-actions"><label class="month-select"><span>◷</span><input id="month" type="month" /></label><button class="quick-add" onclick="openBudgetModal('expense')">＋ 지출 등록</button></div>
+      </header>
+
+      <section class="hero-grid">
+        <article class="balance-card">
+          <div class="card-top"><div><span class="card-label">이번 달 남은 생활비</span><strong id="remaining">₩2,372,000</strong></div><div class="round-icon">₩</div></div>
+          <div class="balance-meta"><span>총 예산 <b id="total-budget">₩4,800,000</b></span><span>사용 <b id="spent">50.6%</b></span></div>
+          <div class="progress"><i id="main-progress" style="width:50.6%"></i></div>
+          <p><span class="pulse"></span> 어제보다 <b>₩84,000</b> 적게 썼어요</p>
+        </article>
+        <article class="mini-card income"><span class="mini-icon">↙</span><div><small>이번 달 수입</small><strong id="income-total">₩6,200,000</strong><p>부부 합산</p></div></article>
+        <article class="mini-card debt"><span class="mini-icon">◇</span><div><small>남은 대출금</small><strong id="loan-total">₩186,500,000</strong><p><b>12.3%</b> 상환 완료</p></div></article>
+      </section>
+
+      <section class="content-grid">
+        <article class="panel budget-panel">
+          <div class="panel-title"><div><h3>소비유형별 예산</h3><p>이번 달 카테고리별 사용 현황</p></div><button class="text-button" data-action="budget">예산 수정</button></div>
+          <div id="budget-list" class="budget-list"></div>
+        </article>
+        <article class="panel loan-panel">
+          <div class="panel-title"><div><h3>대출 상환</h3><p>원금 기준 상환 진행률</p></div><button class="icon-button" data-action="loan">＋</button></div>
+          <div id="loan-list"></div>
+          <button class="secondary full" data-action="repayment">상환 내역 등록</button>
+        </article>
+        <article class="panel recent-panel">
+          <div class="panel-title"><div><h3>최근 거래</h3><p>병호와 영원이 함께 기록한 내역</p></div><button class="text-button">전체 보기</button></div>
+          <div id="recent-list"></div>
+        </article>
+        <article class="ai-card">
+          <div class="ai-orb">✦</div><div><span>GEMINI INSIGHT</span><h3>이번 달엔 배달비가<br><em>18% 줄었어요.</em></h3><p>지금 흐름이면 월말에 약 34만원을 더 남길 수 있어요.</p><button data-action="gemini">AI 연결 설정</button></div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card"><button class="modal-close" data-close>×</button><div id="modal-body"></div></div>
+  </div>
+  <div id="toast" class="toast"></div>
+  <script src="/assets/app.js"></script>
+</body>
+</html>
+
